@@ -8,25 +8,47 @@
     <h1>
         9/11
     </h1>
-    <p>
-        1
-    </p>
-    <h1>
+    <figure>
+        <figcaption>2,977 deaths</figcaption>
+        <img src='https://placekitten.com/300/300'>
+    </figure>
+    <h1 style='margin-top: 5em'>
         COVID-19
     </h1>
-    <p id='covid-19-death-ratio'>
+    <figure id='covid-19-death-graph'>
         Loading...
-    </p>
+        <figcaption id='covid-19-death-count'></figcaption>
+    </figure>
     <cite>
         COVID-19 data source: <a href='https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/cases-in-us.html'>US CDC</a> via <a href='https://systems.jhu.edu/research/public-health/ncov/'>Johns Hopkins CSSE</a> via <a href='https://covid19api.com'>covid19api</a>
     </cite>
+    <style>
+        h1 {
+            margin: 0;
+        }
+        p {
+            margin: 0;
+        }
+        img {
+            padding: 0.25em;
+        }
+    </style>
     <script>
         const nine_eleven_deaths = 2977 // number of victims (not including hijackers), according to Wikipedia
-        async function get_covid_19_death_ratio(){
+        const nine_eleven_image = document.querySelector('img')
+        const covid_19_deaths_container = document.querySelector('#covid-19-death-graph')
+        async function load_covid_19_deaths(){
             const data = await fetch('https://api.covid19api.com/summary').then(r => r.json())
             const covid_19_deaths = data.Countries.find(c => c.CountryCode === 'US').TotalDeaths
-            document.getElementById('covid-19-death-ratio').innerHTML = covid_19_deaths / nine_eleven_deaths
+            covid_19_deaths_container.removeChild(covid_19_deaths_container.firstChild)
+            for (let i = 0; i < covid_19_deaths / nine_eleven_deaths; i ++) {
+                covid_19_deaths_container.appendChild(nine_eleven_image.cloneNode())
+            }
+            const last_nine_eleven_image = nine_eleven_image.cloneNode()
+            last_nine_eleven_image.style.clipPath = `inset(0 ${Math.ceil((1 - covid_19_deaths / nine_eleven_deaths % 1) * 100)}% 0 0)`
+            covid_19_deaths_container.appendChild(last_nine_eleven_image)
+            document.querySelector('#covid-19-death-count').textContent = `${Number(covid_19_deaths).toLocaleString('en-US')} deaths`
         }
-        get_covid_19_death_ratio()
+        load_covid_19_deaths()
     </script>
 </body>
